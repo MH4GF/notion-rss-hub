@@ -7,12 +7,11 @@ import {
 } from '@notionhq/client/build/src/api-types';
 import { InputPropertyValueMap } from '@notionhq/client/build/src/api-endpoints';
 import { config } from 'dotenv';
-import Parser from 'rss-parser';
+import { RssArticle } from './RssArticle';
 
 config();
 
 const notion = new Client({ auth: process.env.NOTION_KEY });
-const parser = new Parser();
 
 async function getFeedSources(): Promise<FeedSource[]> {
   const feedSources: FeedSource[] = [];
@@ -83,7 +82,7 @@ async function getArticlePages(): Promise<Page[]> {
 }
 
 async function createArticlePage(article: Article) {
-  const page = await notion.pages.create({
+  await notion.pages.create({
     parent: {
       database_id: process.env.ARTICLES_NOTION_DATABASE_ID,
     },
@@ -92,7 +91,7 @@ async function createArticlePage(article: Article) {
 }
 
 async function updateArticlePage(pageId: string, article: Article) {
-  const page = await notion.pages.update({
+  await notion.pages.update({
     page_id: pageId,
     archived: false,
     properties: articleProperties(article),
@@ -131,24 +130,12 @@ function articleProperties(article: Article): InputPropertyValueMap {
   };
 }
 
-async function fetchArticles(feedSource: FeedSource): Promise<Article[]> {
-  const feed = await parser.parseURL(feedSource.Url);
-  if (!feed?.items?.length) return [];
-  return feed.items.map((item) => {
-    return {
-      Title: item.title,
-      Url: item.link,
-      Published: item.isoDate,
-      FeedSource: feedSource,
-    };
-  });
-}
-
 async function main() {
+  const rssArticle = new RssArticle();
   const feedSources = await getFeedSources();
   const articles: Article[] = [];
   for (const feedSource of feedSources) {
-    const res = await fetchArticles(feedSource);
+    const res = await rssArticle.fetchArticles(feedSource);
     articles.push(...res);
   }
   findOrCreateOrUpdateArticlePages(articles);
