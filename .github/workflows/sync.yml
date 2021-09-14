@@ -1,0 +1,24 @@
+name: sync rss with notion databases
+
+on:
+  schedule:
+    - cron: 0 17 * * * # JST 0:00
+  # 再実行やデバッグ用に手動でも実行可能にしておく
+  workflow_dispatch:
+
+env:
+  TZ: "Asia/Tokyo"
+jobs:
+  create-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+      - run: yarn install
+      - run: yarn sync
+        env:
+          NOTION_KEY: ${{ secrets.NOTION_KEY }}
+          FEED_SOURSES_NOTION_DATABASE_ID: ${{ secrets.FEED_SOURSES_NOTION_DATABASE_ID }}
+          ARTICLES_NOTION_DATABASE_ID: ${{ secrets.ARTICLES_NOTION_DATABASE_ID }}
