@@ -12,8 +12,6 @@ export class RssArticle {
     const feed = await this.rssParser.parseURL(feedSource.Url);
     if (!feed?.items?.length) return [];
 
-    console.log(feed);
-
     return feed.items.map((item) => {
       return {
         Title: item.title,

@@ -1,6 +1,6 @@
 import { FeedSource, Article } from './types';
-import { Client } from '@notionhq/client';
 import {
+  BookmarkBlock,
   Page,
   TitlePropertyValue,
   URLPropertyValue,
@@ -8,19 +8,20 @@ import {
 import { InputPropertyValueMap } from '@notionhq/client/build/src/api-endpoints';
 import { config } from 'dotenv';
 import { RssArticle } from './RssArticle';
+import { Notionclient } from './NotionClient';
 
 config();
 
-const notion = new Client({ auth: process.env.NOTION_KEY });
+const notionClient = new Notionclient();
 
 async function getFeedSources(): Promise<FeedSource[]> {
   const feedSources: FeedSource[] = [];
 
   async function getFeedSourcesFromNotion(cursor: string | undefined) {
-    const currentPages = await notion.databases.query({
-      database_id: process.env.FEED_SOURSES_NOTION_DATABASE_ID,
-      start_cursor: cursor,
-    });
+    const currentPages = await notionClient.queryDatabase(
+      process.env.FEED_SOURSES_NOTION_DATABASE_ID,
+      cursor
+    );
 
     for (const page of currentPages.results) {
       if (page.object === 'page') {
@@ -66,11 +67,12 @@ async function getArticlePages(): Promise<Page[]> {
   const pages: Page[] = [];
 
   async function getArticlePagesFromNotion(cursor: string | undefined) {
-    const currentPages = await notion.databases.query({
-      database_id: process.env.ARTICLES_NOTION_DATABASE_ID,
-      start_cursor: cursor,
-    });
+    const currentPages = await notionClient.queryDatabase(
+      process.env.ARTICLES_NOTION_DATABASE_ID,
+      cursor
+    );
     pages.push(...currentPages.results);
+
     if (currentPages.has_more && currentPages.next_cursor) {
       await getArticlePagesFromNotion(currentPages.next_cursor);
     }
@@ -82,22 +84,32 @@ async function getArticlePages(): Promise<Page[]> {
 }
 
 async function createArticlePage(article: Article) {
-  await notion.pages.create({
+  await notionClient.createPage({
     parent: {
       database_id: process.env.ARTICLES_NOTION_DATABASE_ID,
     },
     properties: articleProperties(article),
+    children: [
+      {
+        object: 'block',
+        type: 'bookmark',
+        bookmark: {
+          url: article.Url || '',
+        },
+      } as BookmarkBlock, // SDKの問題でidやcreated_timeもリクエストに含める必要がある https://github.com/makenotion/notion-sdk-js/issues/189
+    ],
   });
 }
 
 async function updateArticlePage(pageId: string, article: Article) {
-  await notion.pages.update({
+  await notionClient.updatePage({
     page_id: pageId,
     archived: false,
     properties: articleProperties(article),
   });
 }
 
+// TODO: キーを変更可能にする
 function articleProperties(article: Article): InputPropertyValueMap {
   return {
     Name: {
