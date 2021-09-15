@@ -7,15 +7,15 @@ on:
   workflow_dispatch:
 
 env:
-  TZ: "Asia/Tokyo"
+  TZ: 'Asia/Tokyo'
 jobs:
-  create-issues:
+  sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: "14"
+          node-version: '14'
       - run: yarn install
       - run: yarn sync
         env:
