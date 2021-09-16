@@ -8,4 +8,4 @@ export type Article = {
   Url?: string;
   Published?: string;
   FeedSource: FeedSource;
-}
+};

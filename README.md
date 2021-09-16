@@ -1,13 +1,13 @@
 # notion-rss-hub
 
-RSSフィードをNotionに同期するマン
+RSS フィードを Notion に同期するマン
 
 ## Description
 
-- Qiita, Zenn, noteなどのRSSのURLを登録することで、NotionのDatabaseに記事のリンクをまとめることができます。
-- RSSフィードを取得できるサイトであれば好きな場所に記事を投稿できるようになり、NotionのDatabaseを利用しているため自由にViewを変えたりFilterやSortを利用できます。
+- Qiita, Zenn, note などの RSS の URL を登録することで、Notion の Database に記事のリンクをまとめることができます。
+- RSS フィードを取得できるサイトであれば好きな場所に記事を投稿できるようになり、Notion の Database を利用しているため自由に View を変えたり Filter や Sort を利用できます。
 - [super.so](https://super.so/)や[Wraptas](https://wraptas.com/)で自身のポートフォリオサイトとして公開するユースケースを想定しています。
-- リポジトリをForkしてご自由にお使いください。
+- リポジトリを Fork してご自由にお使いください。
 
 ## Demo
 
@@ -15,45 +15,44 @@ RSSフィードをNotionに同期するマン
 
 ## Usage
 
-同期はGitHub Actionsで行います。発火方法はScheduleもしくはWorkflow Dispatchを用意しています。
+同期は GitHub Actions で行います。発火方法は Schedule もしくは Workflow Dispatch を用意しています。
 
-1. RSSフィードの情報をNotionから取得
-2. RSSフィードのURLにそれぞれアクセスし、記事データを取得
-3. 同期用Databaseに対して、記事URLをユニークキーとしFindOrCreateOrUpdate
-
+1. RSS フィードの情報を Notion から取得
+2. RSS フィードの URL にそれぞれアクセスし、記事データを取得
+3. 同期用 Database に対して、記事 URL をユニークキーとし FindOrCreateOrUpdate
 
 ## Installation
 
-1. リポジトリをFork
-2. Notion上でRSSフィードの設定用Databaseと、記事の同期用Databaseをテンプレートから複製
-3. Notion APIのIntegrationsをInternal integrationsで作成し、tokenを取得
+1. リポジトリを Fork
+2. Notion 上で RSS フィードの設定用 Database と、記事の同期用 Database をテンプレートから複製
+3. Notion API の Integrations を Internal integrations で作成し、token を取得
 4. 環境変数を設定
 5. その他自由にソースコードを修正してください
 
-### 1. リポジトリをFork
+### 1. リポジトリを Fork
 
 [こちら](https://docs.github.com/ja/github/getting-started-with-github/quickstart/fork-a-repo)を参考に、自身の管理するアカウントにリポジトリをフォークしてください。
 
-### 2. Notion上でRSSフィードを管理するDatabaseと、記事を同期するためのDatabaseをテンプレートから複製
+### 2. Notion 上で RSS フィードを管理する Database と、記事を同期するための Database をテンプレートから複製
 
-Notion上で二つのDatabaseを用意します。
+Notion 上で二つの Database を用意します。
 
-- RSSフィード設定用Database
-  - RSSフィードの情報を管理します。設定をNotion上で行うことで、デプロイレスで設定を更新することができます。
-  - テンプレートを用意しているため、自身のNotion workspaceに複製し利用してください。
+- RSS フィード設定用 Database
+  - RSS フィードの情報を管理します。設定を Notion 上で行うことで、デプロイレスで設定を更新することができます。
+  - テンプレートを用意しているため、自身の Notion workspace に複製し利用してください。
   - https://plain-soursop-4e3.notion.site/0a3613c46b404c1bbd30067b69b98e94?v=b84d7653fdef4bda9edea1c8ab01566b
-- 記事の同期用Database
-  - 記事ごとにページが作成されます。FilterやSort, Viewを自由に設定することができます。
-  - テンプレートを用意しているため、自身のNotion workspaceに複製し利用してください。
+- 記事の同期用 Database
+  - 記事ごとにページが作成されます。Filter や Sort, View を自由に設定することができます。
+  - テンプレートを用意しているため、自身の Notion workspace に複製し利用してください。
   - https://plain-soursop-4e3.notion.site/4d3cc536be544ce49e7ea4e71dacf521?v=a85ee872bd8d4c6dbc2c7e3da5f38a9c
 
-### 3. Notion APIのIntegrationsをInternal integrationsで作成し、tokenを取得
+### 3. Notion API の Integrations を Internal integrations で作成し、token を取得
 
 [Getting Started](https://developers.notion.com/docs/getting-started) を参考にしながらアクセストークンを取得してください。
 
 ### 4. 環境変数を設定
 
-[こちら](https://docs.github.com/ja/actions/reference/encrypted-secrets)を参考にフォークしたGitHubのリポジトリにシークレットを登録してください。
+[こちら](https://docs.github.com/ja/actions/reference/encrypted-secrets)を参考にフォークした GitHub のリポジトリにシークレットを登録してください。
 
 以下の内容を登録してください。
 
@@ -63,9 +62,9 @@ FEED_SOURSES_NOTION_DATABASE_ID=<2で作成したRSSフィード設定用Databas
 ARTICLES_NOTION_DATABASE_ID=<2で作成した記事の同期用DatabaseのID>
 ```
 
-database_idの取得方法は[こちら](https://developers.notion.com/docs/working-with-databases)を参考にしてください。
+database_id の取得方法は[こちら](https://developers.notion.com/docs/working-with-databases)を参考にしてください。
 
 ### 5. その他自由にソースコードを修正してください
 
-DatabaseのPropertiesを変えたり、作成するPageの記載内容を変えたい場合は直接コードを修正してください。  
+Database の Properties を変えたり、作成する Page の記載内容を変えたい場合は直接コードを修正してください。  
 `src/index.ts` がアクセスポイントとなっています。
