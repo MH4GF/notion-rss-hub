@@ -27,18 +27,24 @@ export class Notionclient {
     }
   }
 
-  // TODO: エラーハンドリング
   async createPage(params: PagesCreateParameters): Promise<PagesCreateResponse> {
-    return await this.callWithRetry(() => {
-      return this.client.pages.create(params);
-    });
+    try {
+      return await this.callWithRetry(() => {
+        return this.client.pages.create(params);
+      });
+    } catch (e) {
+      throw `error: ${e}`;
+    }
   }
 
-  // TODO: エラーハンドリング
   async updatePage(params: PagesUpdateParameters): Promise<PagesUpdateResponse> {
-    return this.callWithRetry(() => {
-      return this.client.pages.update(params);
-    });
+    try {
+      return this.callWithRetry(() => {
+        return this.client.pages.update(params);
+      });
+    } catch (e) {
+      throw `error: ${e}`;
+    }
   }
 
   private async wait(ms: number): Promise<void> {
