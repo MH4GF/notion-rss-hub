@@ -17,32 +17,25 @@ export class Notionclient {
     this.client = new Client({ auth: process.env.NOTION_KEY });
   }
 
-  // TODO: エラーハンドリング
-  async queryDatabase(
-    databaseId: string,
-    cursor: string | undefined
-  ): Promise<PaginatedList<Page>> {
-    return await this.callWithRetry(() => {
-      return this.client.databases.query({
-        database_id: databaseId,
-        start_cursor: cursor,
+  async queryDatabase(databaseId: string, cursor: string | undefined): Promise<PaginatedList<Page>> {
+    try {
+      return await this.callWithRetry(() => {
+        return this.client.databases.query({ database_id: databaseId, start_cursor: cursor });
       });
-    });
+    } catch (e) {
+      throw `error: ${e}`;
+    }
   }
 
   // TODO: エラーハンドリング
-  async createPage(
-    params: PagesCreateParameters
-  ): Promise<PagesCreateResponse> {
+  async createPage(params: PagesCreateParameters): Promise<PagesCreateResponse> {
     return await this.callWithRetry(() => {
       return this.client.pages.create(params);
     });
   }
 
   // TODO: エラーハンドリング
-  async updatePage(
-    params: PagesUpdateParameters
-  ): Promise<PagesUpdateResponse> {
+  async updatePage(params: PagesUpdateParameters): Promise<PagesUpdateResponse> {
     return this.callWithRetry(() => {
       return this.client.pages.update(params);
     });
@@ -60,7 +53,7 @@ export class Notionclient {
         throw e;
       }
 
-      console.log(`retry when error occured: ${e}`)
+      console.log(`retry when error occured: ${e}`);
       await this.wait(2 ** (depth ** 10));
 
       return this.callWithRetry(fn, depth + 1);

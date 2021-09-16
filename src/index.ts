@@ -1,10 +1,5 @@
 import { FeedSource, Article } from './types';
-import {
-  BookmarkBlock,
-  Page,
-  TitlePropertyValue,
-  URLPropertyValue,
-} from '@notionhq/client/build/src/api-types';
+import { BookmarkBlock, Page, TitlePropertyValue, URLPropertyValue } from '@notionhq/client/build/src/api-types';
 import { InputPropertyValueMap } from '@notionhq/client/build/src/api-endpoints';
 import { config } from 'dotenv';
 import { RssArticle } from './RssArticle';
@@ -18,10 +13,7 @@ async function getFeedSources(): Promise<FeedSource[]> {
   const feedSources: FeedSource[] = [];
 
   async function getFeedSourcesFromNotion(cursor: string | undefined) {
-    const currentPages = await notionClient.queryDatabase(
-      process.env.FEED_SOURSES_NOTION_DATABASE_ID,
-      cursor
-    );
+    const currentPages = await notionClient.queryDatabase(process.env.FEED_SOURSES_NOTION_DATABASE_ID, cursor);
 
     for (const page of currentPages.results) {
       if (page.object === 'page') {
@@ -67,10 +59,7 @@ async function getArticlePages(): Promise<Page[]> {
   const pages: Page[] = [];
 
   async function getArticlePagesFromNotion(cursor: string | undefined) {
-    const currentPages = await notionClient.queryDatabase(
-      process.env.ARTICLES_NOTION_DATABASE_ID,
-      cursor
-    );
+    const currentPages = await notionClient.queryDatabase(process.env.ARTICLES_NOTION_DATABASE_ID, cursor);
     pages.push(...currentPages.results);
 
     if (currentPages.has_more && currentPages.next_cursor) {
