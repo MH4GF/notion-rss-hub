@@ -26,7 +26,7 @@ jobs:
           name: coverage
           path: coverage
       - name: Show coverage in comments
-        uses: ziishaned/jest-reporter-action@v0.0.1
+        uses: ziishaned/jest-reporter-action@0.1.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           test-command: 'yarn jest --coverage'
