@@ -40,11 +40,11 @@ Notion 上で二つの Database を用意します。
 - RSS フィード設定用 Database
   - RSS フィードの情報を管理します。設定を Notion 上で行うことで、デプロイレスで設定を更新することができます。
   - テンプレートを用意しているため、自身の Notion workspace に複製し利用してください。
-  - https://plain-soursop-4e3.notion.site/0a3613c46b404c1bbd30067b69b98e94?v=b84d7653fdef4bda9edea1c8ab01566b
+  - https://miyagi-cnw.notion.site/0a3613c46b404c1bbd30067b69b98e94?v=b84d7653fdef4bda9edea1c8ab01566b
 - 記事の同期用 Database
   - 記事ごとにページが作成されます。Filter や Sort, View を自由に設定することができます。
   - テンプレートを用意しているため、自身の Notion workspace に複製し利用してください。
-  - https://plain-soursop-4e3.notion.site/4d3cc536be544ce49e7ea4e71dacf521?v=a85ee872bd8d4c6dbc2c7e3da5f38a9c
+  - https://miyagi-cnw.notion.site/4d3cc536be544ce49e7ea4e71dacf521?v=a85ee872bd8d4c6dbc2c7e3da5f38a9c
 
 ### 3. Notion API の Integrations を Internal integrations で作成し、token を取得
 
