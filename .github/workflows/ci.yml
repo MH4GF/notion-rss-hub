@@ -1,22 +1,43 @@
-name: test and lint
+name: ci
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    name: build
-    runs-on: ubuntu-latest
+  ci:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [14]
+
     steps:
-      - uses: actions/checkout@v3
-      - name: yarn install
-        run: yarn install
-      - name: eslint review
-        uses: reviewdog/action-eslint@v1
+      - name: Checkout 🛎
+        uses: actions/checkout@v3
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v3.1.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          eslint_flags: './**/*.{ts,js}'
-      - name: Run eslint
-        run: yarn lint
-      - name: Run test
+          node-version: ${{ matrix.node }}
+          cache: yarn
+
+      - name: Install dependencies 👨🏻‍💻
+        run: yarn
+
+      - name: lint 👀
+        run: |
+          yarn lint
+          git diff --exit-code
+
+      - name: compile
+        run: |
+          yarn compile
+
+      - name: Run tests 🧪
         run: yarn test
