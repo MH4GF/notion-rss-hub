@@ -1,9 +1,8 @@
-import { FeedSource, Article } from './types';
-import { BookmarkBlock, Page, TitlePropertyValue, URLPropertyValue } from '@notionhq/client/build/src/api-types';
-import { InputPropertyValueMap } from '@notionhq/client/build/src/api-endpoints';
+import { FeedSource, Article, PageObject } from './types';
 import { config } from 'dotenv';
 import { RssArticle } from './RssArticle';
 import { Notionclient } from './NotionClient';
+import { UpdatePageParameters, CreatePageParameters } from '@notionhq/client/build/src/api-endpoints';
 
 config();
 
@@ -13,24 +12,25 @@ async function getFeedSources(): Promise<FeedSource[]> {
   const feedSources: FeedSource[] = [];
 
   async function getFeedSourcesFromNotion(cursor: string | undefined) {
-    const currentPages = await notionClient.queryDatabase(process.env.FEED_SOURSES_NOTION_DATABASE_ID, cursor);
+    const response = await notionClient.queryDatabase(process.env.FEED_SOURSES_NOTION_DATABASE_ID, cursor);
+    const pages = response.results as PageObject[];
 
-    for (const page of currentPages.results) {
+    for (const page of pages) {
       if (page.object === 'page') {
-        const titleValue = page.properties['sourceName'] as TitlePropertyValue;
-        const urlValue = page.properties['sourceUrl'] as URLPropertyValue;
-        if (!urlValue.url || !titleValue) {
+        const titleValue = page.properties['sourceName'].type === 'title' && page.properties['sourceName'].title;
+        const urlValue = page.properties['sourceUrl'].type === 'url' && page.properties['sourceUrl'].url;
+        if (!urlValue || !titleValue) {
           throw `sourceName or sourceUrl must be set. page url: ${page.url}`;
         }
 
         feedSources.push({
-          Name: titleValue.title[0].plain_text,
-          Url: urlValue.url,
+          Name: titleValue.map((t) => t.plain_text).join(''),
+          Url: urlValue,
         });
       }
     }
-    if (currentPages.has_more && currentPages.next_cursor) {
-      await getFeedSourcesFromNotion(currentPages.next_cursor);
+    if (response.has_more && response.next_cursor) {
+      await getFeedSourcesFromNotion(response.next_cursor);
     }
   }
 
@@ -44,8 +44,8 @@ async function findOrCreateOrUpdateArticlePages(articles: Article[]) {
 
   for (const article of articles) {
     const page = articlePages.find((articlePage) => {
-      const urlValue = articlePage.properties['URL'] as URLPropertyValue;
-      return urlValue.url === article.Url;
+      const url = articlePage.properties['URL'].type === 'url' && articlePage.properties['URL'].url;
+      return url === article.Url;
     });
     if (page) {
       updateArticlePage(page.id, article);
@@ -55,12 +55,12 @@ async function findOrCreateOrUpdateArticlePages(articles: Article[]) {
   }
 }
 
-async function getArticlePages(): Promise<Page[]> {
-  const pages: Page[] = [];
+async function getArticlePages(): Promise<PageObject[]> {
+  const pages: PageObject[] = [];
 
   async function getArticlePagesFromNotion(cursor: string | undefined) {
     const currentPages = await notionClient.queryDatabase(process.env.ARTICLES_NOTION_DATABASE_ID, cursor);
-    pages.push(...currentPages.results);
+    pages.push(...(currentPages.results as PageObject[]));
 
     if (currentPages.has_more && currentPages.next_cursor) {
       await getArticlePagesFromNotion(currentPages.next_cursor);
@@ -85,7 +85,7 @@ async function createArticlePage(article: Article) {
         bookmark: {
           url: article.Url || '',
         },
-      } as BookmarkBlock, // SDKの問題でidやcreated_timeもリクエストに含める必要がある https://github.com/makenotion/notion-sdk-js/issues/189
+      },
     ],
   });
 }
@@ -99,7 +99,7 @@ async function updateArticlePage(pageId: string, article: Article) {
 }
 
 // TODO: キーを変更可能にする
-function articleProperties(article: Article): InputPropertyValueMap {
+function articleProperties(article: Article): CreatePageParameters['properties'] {
   return {
     Name: {
       type: 'title',

@@ -1,11 +1,11 @@
 import { Client } from '@notionhq/client/build/src';
 import {
-  PagesCreateParameters,
-  PagesCreateResponse,
-  PagesUpdateParameters,
-  PagesUpdateResponse,
+  CreatePageParameters,
+  CreatePageResponse,
+  QueryDatabaseResponse,
+  UpdatePageParameters,
+  UpdatePageResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import { PaginatedList, Page } from '@notionhq/client/build/src/api-types';
 import { config } from 'dotenv';
 
 config();
@@ -17,7 +17,7 @@ export class Notionclient {
     this.client = new Client({ auth: process.env.NOTION_KEY });
   }
 
-  async queryDatabase(databaseId: string, cursor: string | undefined): Promise<PaginatedList<Page>> {
+  async queryDatabase(databaseId: string, cursor: string | undefined): Promise<QueryDatabaseResponse> {
     try {
       return await this.callWithRetry(() => {
         return this.client.databases.query({ database_id: databaseId, start_cursor: cursor });
@@ -27,7 +27,7 @@ export class Notionclient {
     }
   }
 
-  async createPage(params: PagesCreateParameters): Promise<PagesCreateResponse> {
+  async createPage(params: CreatePageParameters): Promise<CreatePageResponse> {
     try {
       return await this.callWithRetry(() => {
         return this.client.pages.create(params);
@@ -37,7 +37,7 @@ export class Notionclient {
     }
   }
 
-  async updatePage(params: PagesUpdateParameters): Promise<PagesUpdateResponse> {
+  async updatePage(params: UpdatePageParameters): Promise<UpdatePageResponse> {
     try {
       return this.callWithRetry(() => {
         return this.client.pages.update(params);
