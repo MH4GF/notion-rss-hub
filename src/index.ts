@@ -44,7 +44,7 @@ async function findOrCreateOrUpdateArticlePages(articles: Article[]) {
 
   for (const article of articles) {
     const page = articlePages.find((articlePage) => {
-      const urlValue = articlePage.properties['URL'] as URLPropertyValue;
+      const urlValue = articlePage.properties['outerLink'] as URLPropertyValue;
       return urlValue.url === article.Url;
     });
     if (page) {
@@ -77,7 +77,7 @@ async function createArticlePage(article: Article) {
     parent: {
       database_id: process.env.ARTICLES_NOTION_DATABASE_ID,
     },
-    properties: articleProperties(article),
+    properties: createArticleProperties(article),
     children: [
       {
         object: 'block',
@@ -98,10 +98,9 @@ async function updateArticlePage(pageId: string, article: Article) {
   });
 }
 
-// TODO: キーを変更可能にする
 function articleProperties(article: Article): InputPropertyValueMap {
   return {
-    Name: {
+    title: {
       type: 'title',
       title: [
         {
@@ -112,23 +111,37 @@ function articleProperties(article: Article): InputPropertyValueMap {
         },
       ],
     },
-    Media: {
-      type: 'select',
-      select: {
-        name: article.FeedSource.Name,
-      },
+    tags: {
+      type: 'multi_select',
+      multi_select: [
+        {
+          name: article.FeedSource.Name,
+        },
+      ],
     },
-    Published: {
+    publishedAt: {
       type: 'date',
       date: {
         start: article.Published || '',
       },
     },
-    URL: {
+    outerLink: {
       type: 'url',
       url: article.Url || '',
     },
   };
+}
+
+function createArticleProperties(article: Article): InputPropertyValueMap {
+  const properties = articleProperties(article);
+  const createProperties: InputPropertyValueMap = {
+    published: {
+      type: 'checkbox',
+      checkbox: true,
+    },
+  };
+
+  return { ...properties, ...createProperties };
 }
 
 async function main() {
