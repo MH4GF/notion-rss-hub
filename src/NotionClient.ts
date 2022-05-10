@@ -1,4 +1,4 @@
-import { Client } from '@notionhq/client/build/src';
+import { Client, LogLevel } from '@notionhq/client/build/src';
 import {
   PagesCreateParameters,
   PagesCreateResponse,
@@ -14,7 +14,7 @@ export class Notionclient {
   client;
 
   constructor() {
-    this.client = new Client({ auth: process.env.NOTION_KEY });
+    this.client = new Client({ auth: process.env.NOTION_KEY, logLevel: LogLevel.INFO });
   }
 
   async queryDatabase(databaseId: string, cursor: string | undefined): Promise<PaginatedList<Page>> {
