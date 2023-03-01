@@ -22,7 +22,7 @@
     "esbuild-register": "^3.3.2",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.5.0",
-    "prettier": "^2.6.2",
+    "prettier": "^2.8.4",
     "typescript": "^4.6.4",
     "vitest": "^0.12.1"
   },
